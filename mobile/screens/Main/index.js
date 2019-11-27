@@ -11,17 +11,22 @@ export default class MainScreen extends React.Component {
     super(props);
     this.state = {
         location: null,
-        errorMessage: null
+        move: null,
+        errorMessage: null,
     }
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     if (Platform.OS === 'android' && !Constants.isDevice) {
       this.setState({
         errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
       });
     } else {
-      this._getLocationAsync();
+    this._getLocationAsync();
+      setInterval(async () => {
+        let move = await Location.getCurrentPositionAsync({enableHighAccuracy: true});
+        this.setState({ move: move.coords });
+      }, 1000)
     }
   }
 
@@ -32,18 +37,10 @@ export default class MainScreen extends React.Component {
         errorMessage: 'Permission to access location was denied',
       });
     }
-
-    let location = await Location.watchPositionAsync({
-    enableHighAccuracy:true
-        }, location => {
-            _this.setState({location});
-        });
-    console.log(location)
+    let location = await Location.getCurrentPositionAsync({enableHighAccuracy: true});
     this.setState({ location });
-
   };
 
-    
   render() {
     const styles = StyleSheet.create({
         container: {
@@ -57,7 +54,7 @@ export default class MainScreen extends React.Component {
             height: Dimensions.get('window').height + 25,
         },
     });
-    console.log(Location.watchPositionAsync())
+    console.log(this.state.move)
     return (
       <>
       <View
@@ -66,8 +63,8 @@ export default class MainScreen extends React.Component {
           flexDirection: 'column',
         }}>
         <MapView 
-            region={{
-                latitude:  this.state.location ? this.state.location.coords.latitude : 0,
+            initialRegion={{
+                latitude: this.state.location ? this.state.location.coords.latitude : 0,
                 longitude: this.state.location ? this.state.location.coords.longitude : 0,
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
@@ -75,11 +72,12 @@ export default class MainScreen extends React.Component {
             style={styles.mapStyle} 
         >
             <Marker
-                coordinate={{latitude: this.state.location ? this.state.location.coords.latitude : 0, longitude: this.state.location ? this.state.location.coords.longitude : 0}}
-                title="OPA"
+                coordinate={{latitude: this.state.move ? this.state.move.latitude : 0, longitude: this.state.move ? this.state.move.longitude : 0}}
+                title={<Text>Teste</Text>}
                 description="VAI"
             />
         </MapView>
+        <Text>a</Text>
       </View>
       </>
     );

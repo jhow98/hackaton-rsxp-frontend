@@ -9,6 +9,11 @@
       "android",
       "web"
     ],
+    "android": {
+      "permissions": [
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
